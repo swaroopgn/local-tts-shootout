@@ -10,25 +10,25 @@
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0e0c09; --panel: #16130e; --panel2: #1d1913;
-    --cream: #f4ecdc; --dim: #9b9182; --line: #2d2820;
-    --hot: #ff7a2f; --amber: #ffc66e; --rec: #ff4040;
+    --bg: #faf6ec; --panel: #fffdf7; --panel2: #fdf8ee;
+    --cream: #211c14; --dim: #8b8170; --line: #e2d9c4;
+    --hot: #cf4a12; --amber: #a8400f; --rec: #d92f2f;
   }
   * { box-sizing: border-box; }
   html { scroll-behavior: smooth; }
   body { margin: 0; background: var(--bg); color: var(--cream);
          font-family: 'Newsreader', Georgia, serif; font-size: 17.5px; line-height: 1.65;
-         background-image: radial-gradient(ellipse 80% 50% at 50% -10%, #2a1d0e 0%, transparent 60%); }
+         background-image: radial-gradient(ellipse 80% 50% at 50% -10%, #f4e6c8 0%, transparent 60%); }
   body::after { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 99; opacity: .05;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"); }
-  ::selection { background: var(--hot); color: var(--bg); }
+  ::selection { background: var(--hot); color: #fff; }
 
   .mono { font-family: 'IBM Plex Mono', Menlo, monospace; }
-  a { color: var(--amber); text-decoration-color: rgba(255,198,110,.4); text-underline-offset: 3px; }
+  a { color: var(--amber); text-decoration-color: rgba(168,64,15,.35); text-underline-offset: 3px; }
   a:hover { color: var(--hot); }
 
   /* ── ticker ── */
-  .ticker { overflow: hidden; border-bottom: 1px solid var(--line); background: var(--hot); color: var(--bg); }
+  .ticker { overflow: hidden; border-bottom: 1px solid var(--line); background: var(--hot); color: #fff7ec; }
   .ticker > div { display: flex; gap: 3rem; white-space: nowrap; padding: .3rem 0;
     font-family: 'IBM Plex Mono', monospace; font-size: .68rem; font-weight: 600; letter-spacing: .14em;
     animation: tick 28s linear infinite; width: max-content; }
@@ -36,7 +36,7 @@
 
   /* ── nav ── */
   nav { position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 1.4rem;
-        padding: .65rem 1.2rem; background: rgba(14,12,9,.92); backdrop-filter: blur(8px);
+        padding: .65rem 1.2rem; background: rgba(250,246,236,.92); backdrop-filter: blur(8px);
         border-bottom: 1px solid var(--line);
         font-family: 'IBM Plex Mono', monospace; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; }
   nav a { color: var(--dim); text-decoration: none; }
@@ -83,11 +83,11 @@
   /* ── cards ── */
   .card { position: relative; border: 1px solid var(--line); background: linear-gradient(160deg, var(--panel2), var(--panel));
           border-radius: 14px; padding: 1.5rem 1.6rem 1.4rem; margin: 2.6rem 0; overflow: hidden;
-          transition: border-color .25s, transform .25s; }
+          box-shadow: 0 2px 14px rgba(60,40,10,.05); transition: border-color .25s, transform .25s; }
   .card:hover { border-color: var(--hot); transform: translateY(-2px); }
   .card::before { content: attr(data-rank); position: absolute; top: -1.4rem; right: .4rem;
                   font-family: 'Anton', sans-serif; font-size: 7.5rem; line-height: 1;
-                  color: transparent; -webkit-text-stroke: 1.5px rgba(255,122,47,.28); pointer-events: none; }
+                  color: transparent; -webkit-text-stroke: 1.5px rgba(207,74,18,.3); pointer-events: none; }
   .card .rank { font-family: 'IBM Plex Mono', monospace; color: var(--hot); font-size: .7rem;
                 letter-spacing: .3em; font-weight: 600; }
   .card h3 { margin: .3rem 0 .25rem; font-family: 'Anton', sans-serif; font-weight: 400;
@@ -95,13 +95,13 @@
   .card .tag { font-family: 'IBM Plex Mono', monospace; font-size: .7rem; color: var(--dim);
                margin-bottom: .6rem; letter-spacing: .04em; }
   .card .tag b { color: var(--amber); font-weight: 500; }
-  .card p { font-size: .98rem; margin: .5rem 0 1rem; color: #d9d0bd; }
+  .card p { font-size: .98rem; margin: .5rem 0 1rem; color: #4a4233; }
   .players { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem 1rem; }
   @media (max-width: 620px) { .players { grid-template-columns: 1fr; } .card::before { font-size: 5rem; } }
   .pt { font-family: 'IBM Plex Mono', monospace; font-size: .66rem; color: var(--dim);
         letter-spacing: .12em; text-transform: uppercase; margin-bottom: .25rem; }
   .pt b { color: var(--hot); font-weight: 600; }
-  audio { width: 100%; height: 34px; color-scheme: dark; }
+  audio { width: 100%; height: 34px; color-scheme: light; }
 
   /* ── table ── */
   table { border-collapse: collapse; width: 100%; font-size: .82rem; margin: 1.4rem 0;
@@ -109,7 +109,7 @@
   th, td { text-align: left; padding: .5rem .65rem; border-bottom: 1px solid var(--line); vertical-align: top; }
   th { font-size: .66rem; text-transform: uppercase; letter-spacing: .14em; color: var(--hot); }
   tr td:first-child { color: var(--dim); }
-  tbody tr:hover td, tr:hover td { background: rgba(255,122,47,.05); }
+  tbody tr:hover td, tr:hover td { background: rgba(207,74,18,.06); }
 
   /* ── code ── */
   pre { position: relative; background: #080705; border: 1px solid var(--line); color: #e8e0cf;
@@ -118,7 +118,7 @@
   pre::before { content: '● ● ●'; position: absolute; top: .6rem; left: 1rem; color: #3a342a;
                 font-size: .6rem; letter-spacing: .3em; }
   code { font-family: 'IBM Plex Mono', Menlo, monospace; }
-  p > code, li > code { background: #241f17; color: var(--amber); padding: .1rem .4rem;
+  p > code, li > code { background: #f1e8d2; color: var(--amber); padding: .1rem .4rem;
                         border-radius: 4px; font-size: .8em; }
   .note { font-size: .85rem; color: var(--dim); }
 
@@ -126,9 +126,9 @@
   li::marker { color: var(--hot); }
 
   /* ── episode panel ── */
-  .ep { position: relative; border: 1px solid var(--hot); background: linear-gradient(160deg, #241509, var(--panel));
+  .ep { position: relative; border: 1px solid var(--hot); background: linear-gradient(160deg, #fdeedd, var(--panel));
         border-radius: 14px; padding: 1.3rem 1.5rem; margin: 2.4rem 0;
-        box-shadow: 0 0 40px rgba(255,122,47,.12); animation: rise .7s .3s both; }
+        box-shadow: 0 0 30px rgba(207,74,18,.1); animation: rise .7s .3s both; }
   .ep .onair { font-family: 'IBM Plex Mono', monospace; font-size: .68rem; letter-spacing: .25em;
                color: var(--rec); font-weight: 600; display: flex; align-items: center; gap: .5rem; }
   .ep .onair::before { content: ''; width: 9px; height: 9px; border-radius: 50%; background: var(--rec);
@@ -184,17 +184,13 @@ No cloud, no API keys, no per-character bills.</div>
   <div class="onair">ON AIR</div>
   <div class="ept">THE EPISODE · 6 MIN · AI-NARRATED, WITH LIVE SAMPLES FROM ALL FIVE MODELS</div>
   <audio controls preload="none" src="episode.mp3"></audio>
-  <p class="note" style="margin:.6rem 0 0">Prefer Spotify? It's in
-  <a href="https://open.spotify.com/episode/2tofpQ2Xug5k4gQJRoJMqB">Your Library → Claude Sessions</a>,
-  with tappable chapters per model.</p>
 </div>
-<div class="ep" style="border-color: var(--amber); box-shadow: 0 0 40px rgba(255,198,110,.1)">
+<div class="ep" style="border-color: var(--amber); box-shadow: 0 0 30px rgba(168,64,15,.08)">
   <div class="onair" style="color: var(--amber)">SHOWCASE · THE WINNER NARRATES</div>
   <div class="ept">SAME EPISODE, 7 MIN — EVERY WORD OF NARRATION GENERATED BY MISOTTS 8B ON THIS MACBOOK</div>
   <audio controls preload="none" src="episode-misotts.mp3"></audio>
   <p class="note" style="margin:.6rem 0 0">The rank-one model reads its own victory speech — the most honest demo
-  possible: ~6 minutes of continuous, unedited MisoTTS narration. Also on
-  <a href="https://open.spotify.com/episode/3fHKXNSfXlgOf0EhZQ6pWO">Spotify</a>.</p>
+  possible: ~6 minutes of continuous, unedited MisoTTS narration.</p>
 </div>
 
 <h2 id="voices"><span class="no">№ 01</span>The Voices</h2>
