@@ -154,6 +154,7 @@
 
 <nav>
   <a href="#voices">The Voices</a>
+  <a href="#report">Eval Report</a>
   <a href="#models">The Models</a>
   <a href="#pipeline">The Pipeline</a>
   <a href="#pms">For PMs</a>
@@ -286,7 +287,71 @@ Your ears get the final vote.</p>
 
 <hr>
 
-<h2 id="models"><span class="no">№ 02</span>The Models</h2>
+<h2 id="report"><span class="no">№ 02</span>The Eval Report</h2>
+
+<h3>Protocol</h3>
+<p>Each model read the same four passages, chosen to stress different failure modes:
+<strong>conversational</strong> (casual register, 27 words), <strong>expressive</strong>
+(exclamations, an ellipsis, repeated emphasis — 31 words), <strong>technical</strong>
+(dates, dollar amounts, decimals, an acronym — 36 words), and <strong>long-form</strong>
+(a 90-word narration testing pacing and end-of-speech discipline). One run per passage per
+model, no cherry-picking: the first completed generation is the published sample.</p>
+<p>Conditions held constant: same Apple M5 / 32 GB machine, no other GPU load, machine kept
+awake with <code>caffeinate</code>, every model on its default/recommended preset voice
+(Kokoro <code>af_heart</code>, F5's built-in reference; MisoTTS, Chatterbox, and Dia on their
+defaults) at out-of-the-box settings. Dia received its required <code>[S1]</code> speaker tag.
+Wall-clock time was recorded per clip from inside each driver; real-time factor is generation
+seconds divided by seconds of audio produced — below 1.0 means faster than playback. Raw WAVs
+were timed and archived; only the published MP3s are loudness-normalized (&minus;18 LUFS).</p>
+
+<h3>Quantitative findings</h3>
+<p>Measured real-time factor per passage (lower is better):</p>
+<table>
+<tr><th>passage</th><th>misotts</th><th>kokoro</th><th>chatterbox</th><th>f5-tts</th><th>dia</th></tr>
+<tr><td>conversational</td><td>2.36</td><td>0.23¹</td><td>1.00</td><td>2.48</td><td>4.48</td></tr>
+<tr><td>expressive</td><td>2.27</td><td>0.10</td><td>0.90</td><td>3.42</td><td>4.26</td></tr>
+<tr><td>technical</td><td>2.23</td><td>0.09</td><td>0.92</td><td>2.64</td><td>4.25</td></tr>
+<tr><td>long-form</td><td>2.26</td><td>0.09</td><td>1.03</td><td>1.60</td><td>4.40</td></tr>
+</table>
+<p class="note">¹ first call includes pipeline warm-up; Kokoro's steady state is ~0.09–0.10.</p>
+<p>Three quantitative signals beyond speed:</p>
+<ul>
+  <li><strong>Pacing, via long-form duration.</strong> The same 90 words became 45.9 s of audio
+  from MisoTTS, 40.2 s from Kokoro, 37.2 s from F5, 31.8 s from Chatterbox — and 19.6 s from
+  Dia, which logged <code>EOS detected</code> at 55% of its token budget. Anything under ~30 s
+  for this passage means rushing or truncation; Dia did both, Chatterbox is brisk but complete.</li>
+  <li><strong>Output consistency, via RMS level.</strong> MisoTTS produced three clips at RMS
+  ≈0.02 and one at ≈0.21 — a 10× gain spread at identical settings. Every other model stayed
+  within ±5% of its own average. Harmless after normalization, but it means MisoTTS needs a
+  loudnorm pass in any pipeline.</li>
+  <li><strong>Footprint.</strong> Disk: 0.3 GB (Kokoro) → 1.5 GB (Chatterbox, F5) → 3.2 GB (Dia)
+  → 12 GB (MisoTTS 8-bit). Peak memory during generation tracked download size; everything fit
+  comfortably in 32 GB with the 8B model running alone.</li>
+</ul>
+
+<h3>Qualitative findings</h3>
+<table>
+<tr><th>model</th><th>naturalness</th><th>numbers &amp; dates</th><th>long-form</th><th>signature flaw</th></tr>
+<tr><td>misotts</td><td>most human: breath, hesitation, dynamics</td><td>clean</td><td>stable, unhurried</td><td>gain wobble; slow + heavy</td></tr>
+<tr><td>kokoro</td><td>clean but broadcast-flat</td><td>flawless (G2P front end)</td><td>metronome-stable</td><td>limited emotional range</td></tr>
+<tr><td>chatterbox</td><td>warm, slightly compressed timbre</td><td>good</td><td>complete, brisk</td><td>less headroom on exclamations</td></tr>
+<tr><td>f5-tts</td><td>strong cloning fidelity, soft attack</td><td>occasional rushed digits</td><td>stable</td><td>slow; NC license caps its use</td></tr>
+<tr><td>dia</td><td>lively, dialogue-native</td><td>adequate</td><td><strong>truncates</strong></td><td>treats narration as optional</td></tr>
+</table>
+
+<h3>Limits of this eval</h3>
+<p>Read the findings with their boundaries: one preset voice per model (cloning-capable models
+were not tested on cloned voices), one generation per passage (no seed averaging), no word-error
+rate scoring, and no human listening panel — the ranking triangulates measured speed and
+stability with public blind-vote arena Elo (Kokoro ~1056, Chatterbox ~1006, vs xAI cloud ~1197),
+and those arena figures are single-sourced because the verification stage of the research run
+was rate-limited. MisoTTS is too new to appear in arena data at all; its rank-one position here
+rests on direct listening against the others, which is exactly what the players above let you
+re-do yourself.</p>
+
+<hr>
+
+<h2 id="models"><span class="no">№ 03</span>The Models</h2>
 <p>The field splits into three architectural camps. <strong>Kokoro</strong> is a classical
 parametric pipeline — grapheme-to-phoneme front end feeding a small StyleTTS2-derived decoder —
 which is why 82M parameters punch so far above their weight and why it never mispronounces a
@@ -321,7 +386,7 @@ an Apple M5 / 32 GB with the machine awake (see Field Notes).</p>
 
 <hr>
 
-<h2 id="pipeline"><span class="no">№ 03</span>The Pipeline</h2>
+<h2 id="pipeline"><span class="no">№ 04</span>The Pipeline</h2>
 <p>Every model lives in its own throwaway <code>uv</code> virtualenv — these stacks have
 mutually hostile dependency trees, and isolation is cheaper than debugging them. Three runtimes
 cover all five models; <a href="https://github.com/Blaizzy/mlx-audio">mlx-audio</a> alone
@@ -351,7 +416,7 @@ table come straight from those files, not from papers.</p>
 
 <hr>
 
-<h2 id="pms"><span class="no">№ 04</span>For PMs</h2>
+<h2 id="pms"><span class="no">№ 05</span>For PMs</h2>
 
 <h3>Cost structure flips at zero.</h3>
 <p>Cloud TTS bills per character; a local model bills once in disk space. For an app speaking
@@ -379,7 +444,7 @@ the browser via WebGPU. "TTS as a bundled asset" is now a real product shape.</p
 
 <hr>
 
-<h2 id="notes"><span class="no">№ 05</span>Field Notes</h2>
+<h2 id="notes"><span class="no">№ 06</span>Field Notes</h2>
 <ul>
   <li><strong>spaCy's downloader silently murders Kokoro.</strong> Kokoro's G2P needs
   <code>en_core_web_sm</code>; spaCy's auto-downloader detects <code>uv</code> on PATH and runs
