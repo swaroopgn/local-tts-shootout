@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Local TTS Shootout — five free voices, one MacBook</title>
+<meta name="description" content="Five free, open-weight text-to-speech models benchmarked head-to-head on an Apple M5 MacBook: MisoTTS 8B, Kokoro 82M, Chatterbox, F5-TTS, and Dia 1.6B.">
+<style>
+  :root { --ink: #111; --paper: #fbfaf7; --dim: #6b6b6b; --line: #ddd8cf; --accent: #b3401e; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink);
+         font-family: Georgia, 'Times New Roman', serif; font-size: 17px; line-height: 1.65; }
+  nav { position: sticky; top: 0; background: var(--paper); border-bottom: 1px solid var(--line);
+        padding: .7rem 1rem; z-index: 10; font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: .78rem; }
+  nav a { color: var(--ink); text-decoration: none; margin-right: 1.2rem; }
+  nav a:hover { color: var(--accent); }
+  main { max-width: 760px; margin: 0 auto; padding: 2.5rem 1.2rem 5rem; }
+  h1 { font-size: 2.4rem; line-height: 1.15; margin: .5rem 0 .4rem; }
+  .sub { color: var(--dim); font-size: 1.05rem; margin-bottom: 1.6rem; }
+  .metrics { display: flex; flex-wrap: wrap; gap: 1.6rem; margin: 1.4rem 0 0; padding: 1rem 0;
+             border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+             font-family: ui-monospace, 'SF Mono', Menlo, monospace; }
+  .metrics div { font-size: .8rem; color: var(--dim); }
+  .metrics b { display: block; font-size: 1.25rem; color: var(--ink); }
+  h2 { font-size: 1.5rem; margin: 3.2rem 0 .3rem; }
+  h2 .no { font-family: ui-monospace, Menlo, monospace; color: var(--accent); font-size: .95rem;
+           display: block; letter-spacing: .15em; margin-bottom: .3rem; }
+  h3 { font-size: 1.1rem; margin: 1.8rem 0 .4rem; }
+  hr { border: none; border-top: 1px dashed var(--line); margin: 2.4rem 0; }
+  .card { border: 1px solid var(--line); background: #fff; border-radius: 10px;
+          padding: 1.2rem 1.3rem; margin: 1.3rem 0; }
+  .card .rank { font-family: ui-monospace, Menlo, monospace; color: var(--accent);
+                font-size: .8rem; letter-spacing: .12em; }
+  .card h3 { margin: .15rem 0 .1rem; font-size: 1.25rem; }
+  .card .tag { font-family: ui-monospace, Menlo, monospace; font-size: .75rem; color: var(--dim); margin-bottom: .6rem; }
+  .card p { font-size: .95rem; margin: .5rem 0 .8rem; }
+  .players { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem .9rem; }
+  @media (max-width: 600px) { .players { grid-template-columns: 1fr; } }
+  .pt { font-family: ui-monospace, Menlo, monospace; font-size: .72rem; color: var(--dim); margin-bottom: .15rem; }
+  audio { width: 100%; height: 32px; }
+  table { border-collapse: collapse; width: 100%; font-size: .85rem; margin: 1rem 0;
+          font-family: ui-monospace, 'SF Mono', Menlo, monospace; }
+  th, td { text-align: left; padding: .45rem .6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
+  pre { background: #14130f; color: #e8e4da; padding: 1rem 1.1rem; border-radius: 8px;
+        overflow-x: auto; font-size: .78rem; line-height: 1.55; }
+  code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; }
+  p > code, li > code { background: #efece4; padding: .08rem .35rem; border-radius: 4px; font-size: .82em; }
+  .note { font-size: .85rem; color: var(--dim); }
+  ul { padding-left: 1.2rem; }
+  li { margin: .45rem 0; }
+  footer { margin-top: 4rem; padding-top: 1.2rem; border-top: 1px solid var(--line);
+           font-size: .82rem; color: var(--dim); }
+  a { color: var(--accent); }
+  .ep { border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 1rem 1.2rem; margin: 1.6rem 0; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="#voices">The Voices</a>
+  <a href="#models">The Models</a>
+  <a href="#pipeline">The Pipeline</a>
+  <a href="#pms">For PMs</a>
+  <a href="#notes">Field Notes</a>
+</nav>
+<main>
+
+<h1>The Local TTS Shootout</h1>
+<div class="sub">Five free, open-weight text-to-speech models, head-to-head on one MacBook —
+including the 8-billion-parameter MisoTTS that shipped eight days before this test.
+No cloud, no API keys, no per-character bills.</div>
+
+<div class="metrics">
+  <div><b>5</b>models</div>
+  <div><b>20</b>samples</div>
+  <div><b>~18 GB</b>of weights</div>
+  <div><b>0.09–4.4×</b>real-time factor</div>
+  <div><b>$0</b>marginal cost</div>
+</div>
+
+<!--EPISODE-->
+
+<h2 id="voices"><span class="no">№ 01</span>The Voices</h2>
+<p>Every model reads the same four passages: a casual conversational line, an exclamation-heavy
+expressive piece, a numbers-and-dates gauntlet (<em>"$24.99 to $9.50 per million characters"</em>),
+and a 90-word long-form narration that punishes models with weak pacing. All clips are
+loudness-normalized to &minus;18 LUFS so your ears judge timbre and prosody, not gain.
+Ranking is my read of the evidence — arena Elo data, expressiveness, license, speed.
+Your ears get the final vote.</p>
+
+<div class="card">
+  <div class="rank">RANK 01</div>
+  <h3>MisoTTS 8B — "Miso One"</h3>
+  <div class="tag">Miso Labs · 8B params, 8-bit MLX · Modified MIT · RTF ~2.3 · 12 GB</div>
+  <p>The model you half-remembered as "miso labs" — released June 4, 2026, eight days before this
+  test. A Sesame-CSM-style architecture: a 7.7B Llama-style backbone predicting Mimi audio codes,
+  built specifically to <em>emote</em>. The delivery has breath, hesitation, and dynamics the
+  others can't match. The cost: a 12 GB download and ~2.3× slower than real-time.</p>
+  <div class="players">
+    <div><div class="pt">conversational</div><audio controls preload="none" src="audio/misotts/conversational.mp3"></audio></div>
+    <div><div class="pt">expressive</div><audio controls preload="none" src="audio/misotts/expressive.mp3"></audio></div>
+    <div><div class="pt">technical · numbers &amp; dates</div><audio controls preload="none" src="audio/misotts/technical.mp3"></audio></div>
+    <div><div class="pt">long-form · 90 words</div><audio controls preload="none" src="audio/misotts/longform.mp3"></audio></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="rank">RANK 02</div>
+  <h3>Kokoro 82M</h3>
+  <div class="tag">hexgrad · 82M params · Apache 2.0 · RTF ~0.1 · 0.3 GB</div>
+  <p>The efficiency king. One hundred times smaller than MisoTTS, it generates ten times faster
+  than real-time on the M5 and still out-scores Chatterbox, Dia, and F5 on blind-vote arena Elo
+  (~1056). Clean, broadcast-neutral American English voices. No cloning, preset voices only —
+  but if voice <code>af_heart</code> works for you, this is the practical winner.</p>
+  <div class="players">
+    <div><div class="pt">conversational</div><audio controls preload="none" src="audio/kokoro/conversational.mp3"></audio></div>
+    <div><div class="pt">expressive</div><audio controls preload="none" src="audio/kokoro/expressive.mp3"></audio></div>
+    <div><div class="pt">technical · numbers &amp; dates</div><audio controls preload="none" src="audio/kokoro/technical.mp3"></audio></div>
+    <div><div class="pt">long-form · 90 words</div><audio controls preload="none" src="audio/kokoro/longform.mp3"></audio></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="rank">RANK 03</div>
+  <h3>Chatterbox</h3>
+  <div class="tag">Resemble AI · ~500M params, fp16 MLX · MIT · RTF ~1.0 · 1.5 GB</div>
+  <p>The production workhorse. Resemble AI's open release runs at exactly real-time on this Mac,
+  clones voices from a few seconds of reference audio, and exposes an emotion-exaggeration dial.
+  Blind-arena Elo sits below Kokoro (~1006), but the delivery is warmer and it's the only
+  MIT-licensed option here with cloning.</p>
+  <div class="players">
+    <div><div class="pt">conversational</div><audio controls preload="none" src="audio/chatterbox/conversational.mp3"></audio></div>
+    <div><div class="pt">expressive</div><audio controls preload="none" src="audio/chatterbox/expressive.mp3"></audio></div>
+    <div><div class="pt">technical · numbers &amp; dates</div><audio controls preload="none" src="audio/chatterbox/technical.mp3"></audio></div>
+    <div><div class="pt">long-form · 90 words</div><audio controls preload="none" src="audio/chatterbox/longform.mp3"></audio></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="rank">RANK 04</div>
+  <h3>F5-TTS</h3>
+  <div class="tag">SWivid · 336M flow-matching, MLX port · code MIT, weights CC-BY-NC · RTF ~2.5 · 1.5 GB</div>
+  <p>The voice-cloning specialist: give it ten seconds of anyone and it speaks in their voice.
+  These samples use its built-in reference speaker. Two catches: it runs ~2.5× slower than
+  real-time, and the weights are <strong>non-commercial</strong> (trained on the Emilia
+  dataset) — fine for personal projects, a no-go for products.</p>
+  <div class="players">
+    <div><div class="pt">conversational</div><audio controls preload="none" src="audio/f5-tts/conversational.mp3"></audio></div>
+    <div><div class="pt">expressive</div><audio controls preload="none" src="audio/f5-tts/expressive.mp3"></audio></div>
+    <div><div class="pt">technical · numbers &amp; dates</div><audio controls preload="none" src="audio/f5-tts/technical.mp3"></audio></div>
+    <div><div class="pt">long-form · 90 words</div><audio controls preload="none" src="audio/f5-tts/longform.mp3"></audio></div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="rank">RANK 05</div>
+  <h3>Dia 1.6B</h3>
+  <div class="tag">Nari Labs · 1.6B params, fp16 MLX · Apache 2.0 · RTF ~4.4 · 3.2 GB</div>
+  <p>The dialogue specialist, miscast as a narrator. Dia shines at two-speaker banter with
+  non-verbals — <code>(laughs)</code>, <code>(coughs)</code> — but single-speaker narration is
+  not its lane: listen to the long-form clip, where it compressed 40 seconds of text into 19.6
+  seconds and bailed early. Keep it in mind for podcast-style dialogue; skip it for narration.</p>
+  <div class="players">
+    <div><div class="pt">conversational</div><audio controls preload="none" src="audio/dia/conversational.mp3"></audio></div>
+    <div><div class="pt">expressive</div><audio controls preload="none" src="audio/dia/expressive.mp3"></audio></div>
+    <div><div class="pt">technical · numbers &amp; dates</div><audio controls preload="none" src="audio/dia/technical.mp3"></audio></div>
+    <div><div class="pt">long-form · truncated!</div><audio controls preload="none" src="audio/dia/longform.mp3"></audio></div>
+  </div>
+</div>
+
+<hr>
+
+<h2 id="models"><span class="no">№ 02</span>The Models</h2>
+<p>The field splits into three architectural camps. <strong>Kokoro</strong> is a classical
+parametric pipeline — grapheme-to-phoneme front end feeding a small StyleTTS2-derived decoder —
+which is why 82M parameters punch so far above their weight and why it never mispronounces a
+date. <strong>MisoTTS and Dia</strong> are autoregressive LLM-style token models: a language-model
+backbone predicts discrete audio codec tokens, which buys expressiveness and costs speed plus
+occasional discipline problems (Dia's early end-of-speech). <strong>F5-TTS</strong> is
+flow-matching diffusion — iterative denoising, great cloning fidelity, inherently slow.
+<strong>Chatterbox</strong> sits in between: token-based but distilled and tight.</p>
+
+<p>Why not the others? <strong>Fish Audio S2 Pro</strong> tops the open-weights arena (Elo ~1118)
+but wants a serious GPU. <strong>XTTS-v2</strong> is two generations stale (Elo ~886) and
+non-commercially licensed. <strong>Orpheus</strong> and <strong>Maya1</strong> are CUDA-first
+with no maintained MLX port at test time. Cloud reference: blind-arena data puts xAI's TTS
+(the service this exercise replaces) around Elo 1197 — the gap to the best local options is
+real but has collapsed from "obvious" to "minutes-of-listening" in about a year.</p>
+
+<table>
+<tr><th>spec</th><th>misotts</th><th>kokoro</th><th>chatterbox</th><th>f5-tts</th><th>dia</th></tr>
+<tr><td>params</td><td>8B (8-bit)</td><td>82M</td><td>~500M</td><td>336M</td><td>1.6B</td></tr>
+<tr><td>architecture</td><td>AR token (CSM)</td><td>StyleTTS2-class</td><td>AR token</td><td>flow matching</td><td>AR token</td></tr>
+<tr><td>license</td><td>MIT-mod¹</td><td>Apache 2.0</td><td>MIT</td><td>CC-BY-NC²</td><td>Apache 2.0</td></tr>
+<tr><td>download</td><td>12 GB</td><td>0.3 GB</td><td>1.5 GB</td><td>1.5 GB</td><td>3.2 GB</td></tr>
+<tr><td>RTF on M5³</td><td>~2.3</td><td>~0.1</td><td>~1.0</td><td>~2.5</td><td>~4.4</td></tr>
+<tr><td>voice cloning</td><td>voice continuation</td><td>—</td><td>✓ few seconds</td><td>✓ ~10 s</td><td>audio prompt</td></tr>
+<tr><td>long-form</td><td>solid, 46 s</td><td>solid, 40 s</td><td>solid, 32 s</td><td>solid, 37 s</td><td>truncates, 20 s</td></tr>
+<tr><td>runtime</td><td>mlx-audio</td><td>kokoro (PyTorch)</td><td>mlx-audio</td><td>f5-tts-mlx</td><td>mlx-audio</td></tr>
+</table>
+<p class="note">¹ free; requires "Miso Labs" UI credit only above 50M MAU or $10M monthly revenue.
+&nbsp;² weights non-commercial (Emilia dataset); code is MIT.
+&nbsp;³ real-time factor: generation seconds per second of audio, lower is better, measured on
+an Apple M5 / 32 GB with the machine awake (see Field Notes).</p>
+
+<hr>
+
+<h2 id="pipeline"><span class="no">№ 03</span>The Pipeline</h2>
+<p>Every model lives in its own throwaway <code>uv</code> virtualenv — these stacks have
+mutually hostile dependency trees, and isolation is cheaper than debugging them. Three runtimes
+cover all five models; <a href="https://github.com/Blaizzy/mlx-audio">mlx-audio</a> alone
+covers three of them on Apple Silicon.</p>
+
+<pre><code># 1 · one venv per model family
+uv venv envs/mlx --python 3.12
+uv pip install --python envs/mlx/bin/python mlx-audio soundfile
+
+# 2 · same four passages through every model (mlx-audio family)
+envs/mlx/bin/python eval/gen_mlx.py mlx-community/MisoLabs-MisoTTS-8bit misotts
+envs/mlx/bin/python eval/gen_mlx.py mlx-community/chatterbox-fp16        chatterbox
+envs/mlx/bin/python eval/gen_mlx.py mlx-community/Dia-1.6B-fp16          dia --dia-tags
+
+# 3 · the two non-mlx-audio stacks
+envs/kokoro/bin/python eval/gen_kokoro.py     # kokoro + misaki, PyTorch/MPS
+envs/f5/bin/python     eval/gen_f5.py         # f5-tts-mlx
+
+# 4 · fair-listening pass: loudness-normalize every clip to -18 LUFS
+ffmpeg -i in.wav -af "loudnorm=I=-18:TP=-1.5:LRA=11" -b:a 192k out.mp3
+
+# 5 · keep the Mac honest during overnight runs
+caffeinate -dims</code></pre>
+
+<p>Each run records wall-clock per clip into <code>timings.json</code> — the RTF numbers in the
+table come straight from those files, not from papers.</p>
+
+<hr>
+
+<h2 id="pms"><span class="no">№ 04</span>For PMs</h2>
+
+<h3>Cost structure flips at zero.</h3>
+<p>Cloud TTS bills per character; a local model bills once in disk space. For an app speaking
+a million characters a month, the difference is a recurring four-figure annual line item versus
+a one-time 12 GB download. The catch is floor quality: you're shipping last year's cloud voice,
+not this year's.</p>
+
+<h3>Latency is now a locality question.</h3>
+<p>Kokoro starts speaking in well under a second on a laptop — faster than most API round-trips.
+For voice UI, "local" beats "better" whenever the better voice is 400 ms of network away.</p>
+
+<h3>The quality envelope collapsed this year.</h3>
+<p>Blind-arena spread between xAI's cloud TTS and the best free local model is now ~80–140 Elo —
+audible side-by-side, invisible in isolation for most content. MisoTTS shipped <em>days</em>
+before this test; the envelope is still shrinking.</p>
+
+<h3>Licenses are the real differentiator.</h3>
+<p>Four of five models here are genuinely commercial-safe. The trap is the plausible-looking
+exception: F5's <em>code</em> is MIT but its <em>weights</em> are non-commercial. Audit the
+weights license, not the repo badge.</p>
+
+<h3>Small models are distribution-grade.</h3>
+<p>Kokoro is 300 MB and Apache-licensed — small enough to embed inside an app binary or run in
+the browser via WebGPU. "TTS as a bundled asset" is now a real product shape.</p>
+
+<hr>
+
+<h2 id="notes"><span class="no">№ 05</span>Field Notes</h2>
+<ul>
+  <li><strong>spaCy's downloader silently murders Kokoro.</strong> Kokoro's G2P needs
+  <code>en_core_web_sm</code>; spaCy's auto-downloader detects <code>uv</code> on PATH and runs
+  <code>uv pip install</code> <em>outside</em> the venv, which fails and kills the process with
+  exit 2 — no traceback. Fix: pre-install the model wheel from the spacy-models GitHub release.</li>
+  <li><strong>macOS sleep poisons benchmarks and downloads.</strong> One F5 clip "took" 49
+  minutes of wall clock because the lid effectively closed; the MisoTTS download stalled at
+  3.9 GB with the process at 0% CPU on a dead TCP connection. <code>caffeinate -dims</code>
+  before any long run, and treat a frozen byte-count as "kill and resume," not "wait."</li>
+  <li><strong><code>huggingface-cli</code> is dead, long live <code>hf</code>.</strong> The old
+  binary now prints help text and exits 1. Resumable downloads: <code>hf download &lt;repo&gt;</code>.</li>
+  <li><strong>Dia needs stage directions.</strong> Text must be wrapped in <code>[S1]</code>
+  speaker tags, and even then it treats a 90-word monologue as optional — EOS fired at 55% on
+  the long passage. A dialogue model is not a narrator.</li>
+  <li><strong>MisoTTS gain wobbles between generations.</strong> Three clips landed at RMS ~0.02
+  and one at ~0.21 — a 10× spread from the same model and settings. Loudness-normalize anything
+  you publish.</li>
+  <li><strong>"8-bit 8B" still means 12 GB.</strong> The quantized MisoTTS repo is 12 GB on disk
+  (codec, conditionals, and config ride along). Budget disk and download time accordingly.</li>
+  <li><strong>One venv per model, no exceptions.</strong> The five stacks pin conflicting torch,
+  numpy, and transformers versions. <code>uv venv</code> makes isolation a two-second decision.</li>
+</ul>
+
+<footer>
+  Produced in a <a href="https://claude.com/claude-code">Claude Code</a> session on an Apple M5
+  MacBook (32 GB), June 2026. Models: <a href="https://huggingface.co/MisoLabs/MisoTTS">MisoTTS</a> ·
+  <a href="https://huggingface.co/hexgrad/Kokoro-82M">Kokoro</a> ·
+  <a href="https://huggingface.co/ResembleAI/chatterbox">Chatterbox</a> ·
+  <a href="https://github.com/SWivid/F5-TTS">F5-TTS</a> ·
+  <a href="https://github.com/nari-labs/dia">Dia</a>, served on Apple Silicon by
+  <a href="https://github.com/Blaizzy/mlx-audio">mlx-audio</a>.
+  All speech is AI-generated. Passages are original text written for this benchmark.
+</footer>
+
+</main>
+</body>
+</html>
